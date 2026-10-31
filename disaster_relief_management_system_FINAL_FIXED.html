@@ -1,0 +1,1702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disaster Relief Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: Arial, 'Segoe UI', Helvetica, sans-serif;
+            background-color: #f4f6f9;
+            color: #222222;
+            font-size: 13px;
+            line-height: 1.4;
+            letter-spacing: normal;
+        }
+
+        .header-bg {
+            background-color: #0f2c59;
+            color: #ffffff;
+        }
+
+        .plain-box {
+            background-color: #ffffff;
+            border: 1px solid #cccccc;
+            border-radius: 0px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 3px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 5px 8px;
+            font-size: 13px;
+            border: 1px solid #cccccc;
+            border-radius: 0px;
+            background-color: #ffffff;
+            color: #222222;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #0f2c59;
+        }
+
+        .btn {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 0px;
+            border: 1px solid #cccccc;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #0f2c59;
+            color: #ffffff;
+            border-color: #0f2c59;
+        }
+
+        .btn-primary:hover {
+            background-color: #1b4985;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #222222;
+            border-color: #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        .btn-danger {
+            background-color: #b91c1c;
+            color: #ffffff;
+            border-color: #b91c1c;
+        }
+
+        .btn-danger:hover {
+            background-color: #991b1b;
+        }
+
+        .table-plain {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        .table-plain th {
+            background-color: #f1f5f9;
+            color: #333333;
+            font-weight: bold;
+            font-size: 11px;
+            text-transform: uppercase;
+            padding: 6px 8px;
+            border: 1px solid #cccccc;
+        }
+
+        .table-plain td {
+            padding: 6px 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-plain tr:nth-child(even) {
+            background-color: #f8fafc;
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 1px 5px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 0px;
+        }
+
+        .status-active { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .status-pending { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .status-critical { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .status-info { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+
+        .font-mono-code {
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        .login-overlay {
+            position: fixed; inset: 0; background: rgba(15,44,89,.55);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 100; padding: 16px;
+        }
+        .login-card {
+            width: 100%; max-width: 380px; background: #fff;
+            border: 1px solid #cbd5e1; padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.18);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- TOP SYSTEM HEADER BAR -->
+    <header class="header-bg border-b border-gray-300">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="cursor-pointer flex items-center space-x-3" onclick="navigateHome()">
+                <div class="w-7 h-7 bg-white text-blue-900 font-bold flex items-center justify-center border border-gray-400 text-xs">DR</div>
+                <div>
+                    <h1 class="text-sm font-bold text-white leading-none">Disaster Relief Management System</h1>
+                    <span class="text-xs text-gray-300">Operations & Public Services Portal</span>
+                </div>
+            </div>
+
+            <div id="header-controls" class="hidden flex items-center space-x-3">
+                <span id="current-perspective-label" class="text-xs bg-blue-900 text-white px-2 py-1 border border-blue-700">Public Portal</span>
+
+                <div id="admin-role-container" class="hidden">
+                    <select id="select-admin-subrole" onchange="switchAdminRole(this.value)" class="text-xs bg-white text-gray-900 border border-gray-400 px-2 py-1">
+                        <option value="Super Admin">Role: Super Admin</option>
+                        <option value="Disaster Manager">Role: Disaster Manager</option>
+                        <option value="Relief Coordinator">Role: Relief Coordinator</option>
+                        <option value="Medical Officer">Role: Medical Officer</option>
+                    </select>
+                </div>
+
+                <button onclick="navigateHome()" class="btn btn-secondary text-xs">Logout / Main Menu</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN BODY CONTAINER -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-4">
+
+        <!-- LANDING PAGE -->
+        <div id="screen-landing" class="max-w-3xl mx-auto space-y-4 py-4">
+            <div class="plain-box p-4">
+                <h2 class="text-sm font-bold text-gray-900 border-b pb-2 mb-3">Portal Entrance</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button onclick="setPerspective('PUBLIC')" class="plain-box p-4 text-left hover:bg-gray-50">
+                        <div class="font-bold text-blue-900 text-sm">Public Relief Portal</div>
+                        <p class="text-xs text-gray-600 mt-1">Search relief camps, submit beneficiary registrations, and request assistance.</p>
+                    </button>
+
+                    <button onclick="setPerspective('ADMIN')" class="plain-box p-4 text-left hover:bg-gray-50">
+                        <div class="font-bold text-blue-900 text-sm">Operations Management Login</div>
+                        <p class="text-xs text-gray-600 mt-1">Authorized access for operations staff, camp supervisors, and medical team.</p>
+                    </button>
+                </div>
+            </div>
+
+            <div class="plain-box p-4 space-y-2">
+                <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Current Public Operational Notices</h3>
+                <div class="text-xs text-gray-700 space-y-1">
+                    <div><strong>Notice #104:</strong> Monsoonal flooding in Zone 4 (Chennai). 3 relief camps operational.</div>
+                    <div><strong>Notice #103:</strong> Earthquake assessment underway in Delhi NCR region. Relief centers active.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN LOGIN -->
+        <div id="admin-login" class="hidden login-overlay">
+            <div class="login-card">
+                <div class="text-center mb-5">
+                    <div class="text-lg font-bold text-blue-900">Operations Management Login</div>
+                    <div class="text-xs text-gray-500 mt-1">Authorized personnel only</div>
+                </div>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+                    <div>
+                        <label class="form-label">Username</label>
+                        <input id="admin-username" type="text" required autocomplete="username" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Password</label>
+                        <input id="admin-password" type="password" required autocomplete="current-password" class="form-input">
+                    </div>
+                    <div id="admin-login-error" class="hidden text-xs text-red-700 bg-red-50 border border-red-200 p-2"></div>
+                    <div class="flex gap-2 pt-2">
+                        <button type="button" onclick="closeAdminLogin()" class="btn btn-secondary w-1/2">Cancel</button>
+                        <button type="submit" class="btn btn-primary w-1/2">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- PUBLIC PORTAL -->
+        <div id="screen-public" class="hidden space-y-4">
+
+            <!-- ADVISORY BANNER -->
+            <div class="bg-amber-50 border border-amber-300 p-3 plain-box">
+                <div class="font-bold text-xs text-amber-900" id="notice-title">Active Advisory</div>
+                <div class="text-xs text-amber-800" id="notice-body">Monsoonal flooding active across Chennai region. Relief camps operational with food and medical facilities.</div>
+            </div>
+
+            <!-- PUBLIC NAVIGATION & TITLE -->
+            <div class="plain-box p-3 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div>
+                    <h2 class="text-sm font-bold text-gray-900">Public Relief Services</h2>
+                    <span class="text-xs text-gray-600">Select an action below to view active relief camps or register for support.</span>
+                </div>
+                <button onclick="triggerSOSModal()" class="btn btn-danger text-xs">Request Emergency Assistance (SOS)</button>
+            </div>
+
+            <!-- PUBLIC TABS -->
+            <div class="border-b border-gray-300 flex space-x-1 bg-white px-2 pt-1 plain-box">
+                <button onclick="switchPublicTab('camps')" id="ptab-btn-camps" class="py-1.5 px-3 text-xs font-bold border-b-2 border-blue-900 text-blue-900">Relief Camps</button>
+                <button onclick="switchPublicTab('register')" id="ptab-btn-register" class="py-1.5 px-3 text-xs font-bold border-b-2 border-transparent text-gray-600 hover:text-gray-900">Beneficiary Registration</button>
+                <button onclick="switchPublicTab('request')" id="ptab-btn-request" class="py-1.5 px-3 text-xs font-bold border-b-2 border-transparent text-gray-600 hover:text-gray-900">Request Assistance</button>
+                <button onclick="switchPublicTab('status')" id="ptab-btn-status" class="py-1.5 px-3 text-xs font-bold border-b-2 border-transparent text-gray-600 hover:text-gray-900">Application Status</button>
+            </div>
+
+            <!-- PUBLIC TAB: RELIEF CAMPS -->
+            <div id="ptab-camps" class="space-y-3">
+                <div class="plain-box p-3 grid grid-cols-1 sm:grid-cols-4 gap-3 bg-gray-50">
+                    <div>
+                        <label class="form-label">Location / City</label>
+                        <select id="p-filter-location" onchange="renderPublicCamps()" class="form-select">
+                            <option value="">All Locations</option>
+                            <option value="Chennai">Chennai</option>
+                            <option value="Delhi">Delhi</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Disaster Event</label>
+                        <select id="p-filter-disaster" onchange="renderPublicCamps()" class="form-select">
+                            <option value="">All Disasters</option>
+                            <option value="Flood">Flood</option>
+                            <option value="Earthquake">Earthquake</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Required Facility</label>
+                        <select id="p-filter-facility" onchange="renderPublicCamps()" class="form-select">
+                            <option value="">Any Facility</option>
+                            <option value="medical">Medical Facility</option>
+                            <option value="food">Food & Water</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="resetPublicCampFilters()" class="btn btn-secondary w-full">Clear Filters</button>
+                    </div>
+                </div>
+
+                <div id="public-camp-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Dynamic Camp Cards -->
+                </div>
+            </div>
+
+            <!-- PUBLIC TAB: BENEFICIARY REGISTRATION -->
+            <div id="ptab-register" class="hidden plain-box p-4 max-w-xl mx-auto space-y-3">
+                <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Beneficiary & Family Registration Form</h3>
+                <form id="form-public-register" onsubmit="handlePublicRegister(event)" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="form-label">Head of Family Name *</label>
+                            <input type="text" id="preg-name" required class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">Contact Phone Number *</label>
+                            <input type="text" id="preg-phone" required class="form-input">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div>
+                            <label class="form-label">Age *</label>
+                            <input type="number" id="preg-age" min="1" max="110" required class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">Gender *</label>
+                            <select id="preg-gender" class="form-select">
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Relief Camp *</label>
+                            <select id="preg-camp-select" required class="form-select"></select>
+                        </div>
+                    </div>
+
+                    <div class="p-2 bg-gray-50 border border-gray-300 space-y-1">
+                        <span class="text-xs font-bold text-gray-700">Family Members Breakdown</span>
+                        <div class="grid grid-cols-4 gap-2">
+                            <div>
+                                <label class="text-xs text-gray-600">Adults</label>
+                                <input type="number" id="preg-adults" min="1" value="1" class="form-input">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Children</label>
+                                <input type="number" id="preg-children" min="0" value="0" class="form-input">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Elderly</label>
+                                <input type="number" id="preg-elderly" min="0" value="0" class="form-input">
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-600">Special Needs</label>
+                                <input type="number" id="preg-special" min="0" value="0" class="form-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Special Requirements / Medical Notes</label>
+                        <textarea id="preg-notes" rows="2" class="form-textarea"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full">Submit Registration</button>
+                </form>
+            </div>
+
+            <!-- PUBLIC TAB: REQUEST ASSISTANCE -->
+            <div id="ptab-request" class="hidden plain-box p-4 max-w-xl mx-auto space-y-3">
+                <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Assistance Request Form</h3>
+                <form id="form-public-request" onsubmit="handlePublicRequest(event)" class="space-y-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="form-label">Applicant Name *</label>
+                            <input type="text" id="preq-name" required class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">Assistance Category *</label>
+                            <select id="preq-category" required class="form-select">
+                                <option value="Food Ration">Food Ration Packets</option>
+                                <option value="Drinking Water">Drinking Water Supply</option>
+                                <option value="Medical Supply">Medical Supplies</option>
+                                <option value="Doctor Attention">Medical Doctor Assistance</option>
+                                <option value="Evacuation">Emergency Evacuation</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                            <label class="form-label">Relief Camp Location *</label>
+                            <select id="preq-camp-select" required class="form-select"></select>
+                        </div>
+                        <div>
+                            <label class="form-label">Priority Level *</label>
+                            <select id="preq-priority" required class="form-select">
+                                <option value="Normal">Normal</option>
+                                <option value="High">High</option>
+                                <option value="Critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="form-label">Details / Explanation *</label>
+                        <textarea id="preq-desc" required rows="3" class="form-textarea"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-full">Submit Request</button>
+                </form>
+            </div>
+
+            <!-- PUBLIC TAB: APPLICATION STATUS -->
+            <div id="ptab-status" class="hidden space-y-4">
+                <div class="plain-box p-3 space-y-2">
+                    <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Registered Beneficiaries</h3>
+                    <div class="overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>Registration ID</th>
+                                    <th>Head of Family</th>
+                                    <th>Contact Phone</th>
+                                    <th>Members</th>
+                                    <th>Camp</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="public-registrations-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="plain-box p-3 space-y-2">
+                    <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Assistance Requests</h3>
+                    <div class="overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Category</th>
+                                    <th>Relief Camp</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="public-requests-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- OPERATIONS PORTAL (ADMIN) -->
+        <div id="screen-admin" class="hidden flex flex-col md:flex-row gap-4">
+
+            <!-- SIDEBAR -->
+            <aside class="w-full md:w-48 flex-shrink-0 space-y-2">
+                <div class="plain-box p-2 bg-gray-100">
+                    <span class="text-xs text-gray-600 block">Current User Scope</span>
+                    <span class="text-xs font-bold text-gray-900" id="sidebar-role-label">Super Admin</span>
+                </div>
+
+                <nav class="plain-box divide-y divide-gray-200 text-xs">
+                    <div class="px-2 py-1 bg-gray-100 text-gray-600 font-bold">OPERATIONS</div>
+                    <button onclick="switchAdminTab('cmd')" id="atab-btn-cmd" class="w-full text-left px-2 py-1.5 font-bold text-blue-900 bg-gray-100">Overview</button>
+                    <button onclick="switchAdminTab('sos')" id="atab-btn-sos" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Emergency Queue</button>
+                    <button onclick="switchAdminTab('notices')" id="atab-btn-notices" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Public Notices</button>
+
+                    <div class="px-2 py-1 bg-gray-100 text-gray-600 font-bold">MANAGEMENT</div>
+                    <button onclick="switchAdminTab('disasters')" id="atab-btn-disasters" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Disasters</button>
+                    <button onclick="switchAdminTab('camps')" id="atab-btn-camps" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Relief Camps</button>
+                    <button onclick="switchAdminTab('victims')" id="atab-btn-victims" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Beneficiaries</button>
+                    <button onclick="switchAdminTab('requests')" id="atab-btn-requests" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Assistance Requests</button>
+                    <button onclick="switchAdminTab('resources')" id="atab-btn-resources" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Resource Stock</button>
+                    <button onclick="switchAdminTab('medical')" id="atab-btn-medical" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Medical Cases</button>
+
+                    <div class="px-2 py-1 bg-gray-100 text-gray-600 font-bold">REPORTING</div>
+                    <button onclick="switchAdminTab('analytics')" id="atab-btn-analytics" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Database Search & Analytics</button>
+                    <button onclick="switchAdminTab('reports')" id="atab-btn-reports" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Reports</button>
+                    <button onclick="switchAdminTab('audit')" id="atab-btn-audit" class="w-full text-left px-2 py-1.5 text-gray-700 hover:bg-gray-50">Audit Log</button>
+                </nav>
+            </aside>
+
+            <!-- MAIN ADMIN CONTENT AREA -->
+            <div class="flex-grow space-y-4">
+
+                <!-- PLAIN TABULAR OPERATIONAL SUMMARY -->
+                <div class="plain-box p-3 bg-white">
+                    <span class="text-xs font-bold text-gray-900 block mb-2 border-b pb-1">Operational Summary</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-6 gap-2 text-xs text-center">
+                        <div class="border border-gray-200 p-2 bg-gray-50">
+                            <span class="text-gray-500 block">Active Disasters</span>
+                            <span class="font-bold text-sm text-gray-900" id="m-stat-disasters">0</span>
+                        </div>
+                        <div class="border border-gray-200 p-2 bg-gray-50">
+                            <span class="text-gray-500 block">Relief Camps</span>
+                            <span class="font-bold text-sm text-gray-900" id="m-stat-camps">0</span>
+                        </div>
+                        <div class="border border-gray-200 p-2 bg-gray-50">
+                            <span class="text-gray-500 block">Beneficiaries</span>
+                            <span class="font-bold text-sm text-gray-900" id="m-stat-victims">0</span>
+                        </div>
+                        <div class="border border-gray-200 p-2 bg-gray-50">
+                            <span class="text-gray-500 block">Pending Reqs</span>
+                            <span class="font-bold text-sm text-amber-800" id="m-stat-requests">0</span>
+                        </div>
+                        <div class="border border-gray-200 p-2 bg-gray-50">
+                            <span class="text-gray-500 block">Active SOS</span>
+                            <span class="font-bold text-sm text-red-700" id="m-stat-sos">0</span>
+                        </div>
+                        <div class="border border-gray-200 p-2 bg-gray-50">
+                            <span class="text-gray-500 block">Avail. Capacity</span>
+                            <span class="font-bold text-sm text-emerald-800" id="m-stat-capacity">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: OVERVIEW -->
+                <div id="atab-cmd" class="space-y-3">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+                        <div class="lg:col-span-2 plain-box p-3 space-y-2">
+                            <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Operational Event Log</h3>
+                            <div id="admin-activity-feed" class="space-y-1 max-h-64 overflow-y-auto text-xs">
+                                <!-- Dynamic Logs -->
+                            </div>
+                        </div>
+
+                        <div class="plain-box p-3 space-y-2">
+                            <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Inventory Stock Alerts</h3>
+                            <div id="admin-inventory-alerts" class="space-y-1.5 text-xs">
+                                <!-- Inventory Alerts -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: EMERGENCY QUEUE -->
+                <div id="atab-sos" class="hidden plain-box p-3 space-y-2">
+                    <h3 class="text-xs font-bold text-red-700 border-b pb-1">Emergency Queue (SOS)</h3>
+                    <div class="overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>SOS ID</th>
+                                    <th>Applicant Name</th>
+                                    <th>Location Reference</th>
+                                    <th>Emergency Category</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                    <th>Update</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-sos-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: PUBLIC NOTICES -->
+                <div id="atab-notices" class="hidden plain-box p-3 space-y-3 max-w-md">
+                    <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Publish Public Advisory Notice</h3>
+                    <form onsubmit="handlePublishNotice(event)" class="space-y-2">
+                        <div>
+                            <label class="form-label">Notice Headline *</label>
+                            <input type="text" id="anotice-title" required class="form-input">
+                        </div>
+                        <div>
+                            <label class="form-label">Notice Details *</label>
+                            <textarea id="anotice-body" required rows="3" class="form-textarea"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Publish Notice</button>
+                    </form>
+                </div>
+
+                <!-- ADMIN TAB: DISASTERS -->
+                <div id="atab-disasters" class="hidden space-y-2">
+                    <div class="flex justify-between items-center plain-box p-2">
+                        <span class="text-xs font-bold text-gray-900">Disasters List</span>
+                        <button onclick="openDisasterModal()" class="btn btn-primary text-xs">+ Register Disaster</button>
+                    </div>
+                    <div class="plain-box overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Location</th>
+                                    <th>Start Date</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-disasters-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: RELIEF CAMPS -->
+                <div id="atab-camps" class="hidden space-y-2">
+                    <div class="flex justify-between items-center plain-box p-2">
+                        <span class="text-xs font-bold text-gray-900">Relief Camps List</span>
+                        <button onclick="openCampModal()" class="btn btn-primary text-xs">+ Create Camp</button>
+                    </div>
+                    <div class="plain-box overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>Camp ID</th>
+                                    <th>Camp Name</th>
+                                    <th>Address</th>
+                                    <th>Capacity</th>
+                                    <th>Occupied</th>
+                                    <th>Available</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-camps-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: BENEFICIARIES -->
+                <div id="atab-victims" class="hidden space-y-2">
+                    <div class="plain-box p-2 flex gap-2">
+                        <input type="text" id="search-victims-input" oninput="renderAdminVictims()" placeholder="Filter name or ID..." class="form-input sm:w-48">
+                        <select id="filter-victim-status" onchange="renderAdminVictims()" class="form-select sm:w-36">
+                            <option value="">All Statuses</option>
+                            <option value="Active">Active</option>
+                            <option value="Discharged">Discharged</option>
+                        </select>
+                    </div>
+                    <div class="plain-box overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>Registration ID</th>
+                                    <th>Name</th>
+                                    <th>Age/Gender</th>
+                                    <th>Members</th>
+                                    <th>Assigned Camp</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-victims-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: ASSISTANCE REQUESTS -->
+                <div id="atab-requests" class="hidden plain-box p-3 space-y-2">
+                    <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Assistance Applications</h3>
+                    <div class="overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Applicant</th>
+                                    <th>Category</th>
+                                    <th>Relief Camp</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-requests-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: RESOURCES -->
+                <div id="atab-resources" class="hidden plain-box p-3 space-y-2">
+                    <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Relief Stock Inventory</h3>
+                    <div class="overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>Item ID</th>
+                                    <th>Item Name</th>
+                                    <th>Category</th>
+                                    <th>Total Stock</th>
+                                    <th>Distributed</th>
+                                    <th>Remaining</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-resources-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: MEDICAL CASES -->
+                <div id="atab-medical" class="hidden space-y-2">
+                    <div class="flex justify-between items-center plain-box p-2">
+                        <span class="text-xs font-bold text-gray-900">Medical Cases & Patient Log</span>
+                        <button onclick="openMedicalModal()" class="btn btn-primary text-xs">+ Log Case</button>
+                    </div>
+                    <div class="plain-box overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>Case ID</th>
+                                    <th>Patient Name</th>
+                                    <th>Condition</th>
+                                    <th>Relief Camp</th>
+                                    <th>Referral Notes</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Update Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-medical-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: ANALYTICS -->
+                <div id="atab-analytics" class="hidden space-y-3">
+                    <div class="plain-box p-3 space-y-2">
+                        <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Database SQL Filter Query</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                            <div>
+                                <label class="form-label">Location / City</label>
+                                <select id="sql-city" class="form-select">
+                                    <option value="">All Cities</option>
+                                    <option value="Chennai">Chennai</option>
+                                    <option value="Delhi">Delhi</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Disaster Type</label>
+                                <select id="sql-disaster" class="form-select">
+                                    <option value="">All Types</option>
+                                    <option value="Flood">Flood</option>
+                                    <option value="Earthquake">Earthquake</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Year</label>
+                                <select id="sql-year" class="form-select">
+                                    <option value="">All Years</option>
+                                    <option value="2026">2026</option>
+                                </select>
+                            </div>
+                            <div class="flex items-end">
+                                <button onclick="executeSQLQuery()" class="btn btn-primary w-full">Execute Query</button>
+                            </div>
+                        </div>
+
+                        <div id="sql-query-string" class="bg-gray-100 text-gray-800 text-xs p-2 font-mono-code border border-gray-300 overflow-x-auto">
+                            SELECT * FROM Victim v JOIN Camp c ON v.CampID = c.CampID JOIN Disaster d ON c.DisasterID = d.DisasterID;
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="table-plain">
+                                <thead>
+                                    <tr>
+                                        <th>Victim ID</th>
+                                        <th>Name</th>
+                                        <th>Camp Name</th>
+                                        <th>Disaster Name</th>
+                                        <th>Location</th>
+                                        <th>Start Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sql-results-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div class="plain-box p-3 space-y-1">
+                            <span class="text-xs font-bold text-gray-900 block">Camp Occupancy Chart</span>
+                            <canvas id="chart-camps-canvas" height="150"></canvas>
+                        </div>
+                        <div class="plain-box p-3 space-y-1">
+                            <span class="text-xs font-bold text-gray-900 block">Assistance Requests Breakdown</span>
+                            <canvas id="chart-requests-canvas" height="150"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: REPORTS -->
+                <div id="atab-reports" class="hidden plain-box p-3 space-y-2">
+                    <h3 class="text-xs font-bold text-gray-900 border-b pb-1">Export Operational Reports</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button onclick="exportReport('Disasters')" class="btn btn-secondary">Disasters Report</button>
+                        <button onclick="exportReport('Relief Camps')" class="btn btn-secondary">Camps Report</button>
+                        <button onclick="exportReport('Beneficiaries')" class="btn btn-secondary">Beneficiaries Report</button>
+                        <button onclick="exportReport('Inventory')" class="btn btn-secondary">Inventory Report</button>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB: AUDIT LOG -->
+                <div id="atab-audit" class="hidden plain-box p-3 space-y-2">
+                    <h3 class="text-xs font-bold text-gray-900 border-b pb-1">System Audit Log</h3>
+                    <div class="overflow-x-auto">
+                        <table class="table-plain">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp</th>
+                                    <th>Role Scope</th>
+                                    <th>Action Description</th>
+                                    <th>Target Module</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-audit-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="mt-auto bg-gray-200 border-t border-gray-300 py-2 text-xs text-gray-600">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
+            <span>Disaster Relief Operations System &copy; 2026.</span>
+            <span>Relational Schema Engine (JDBC Connected)</span>
+        </div>
+    </footer>
+
+    <!-- MODAL DIALOGS -->
+
+    <!-- SOS MODAL -->
+    <div id="modal-sos" class="hidden fixed inset-0 bg-gray-900/40 z-50 flex items-center justify-center p-4">
+        <div class="plain-box max-w-md w-full p-4 space-y-3 bg-white">
+            <h3 class="text-xs font-bold text-red-700">Submit Emergency SOS Request</h3>
+            <form onsubmit="handleSOSSubmit(event)" class="space-y-2">
+                <div>
+                    <label class="form-label">Applicant Name *</label>
+                    <input type="text" id="msos-name" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Location / Landmark *</label>
+                    <input type="text" id="msos-location" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Emergency Category *</label>
+                    <select id="msos-type" class="form-select">
+                        <option value="Medical Emergency">Medical Emergency</option>
+                        <option value="Trapped / Evacuation">Trapped / Evacuation Needed</option>
+                        <option value="Food & Water Shortage">Food & Water Shortage</option>
+                    </select>
+                </div>
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" onclick="closeSOSModal()" class="btn btn-secondary w-1/2">Cancel</button>
+                    <button type="submit" class="btn btn-danger w-1/2">Submit SOS</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DISASTER MODAL -->
+    <div id="modal-disaster" class="hidden fixed inset-0 bg-gray-900/40 z-50 flex items-center justify-center p-4">
+        <div class="plain-box max-w-md w-full p-4 space-y-3 bg-white">
+            <h3 class="text-xs font-bold text-gray-900">Register Disaster Record</h3>
+            <form onsubmit="handleDisasterSubmit(event)" class="space-y-2">
+                <div>
+                    <label class="form-label">Disaster Name *</label>
+                    <input type="text" id="mdis-name" required class="form-input">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="form-label">Type *</label>
+                        <input type="text" id="mdis-type" required class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Location *</label>
+                        <input type="text" id="mdis-location" required class="form-input">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="form-label">Start Date *</label>
+                        <input type="date" id="mdis-date" required class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Severity *</label>
+                        <select id="mdis-severity" class="form-select">
+                            <option value="Moderate">Moderate</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" onclick="closeDisasterModal()" class="btn btn-secondary w-1/2">Cancel</button>
+                    <button type="submit" class="btn btn-primary w-1/2">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CAMP MODAL -->
+    <div id="modal-camp" class="hidden fixed inset-0 bg-gray-900/40 z-50 flex items-center justify-center p-4">
+        <div class="plain-box max-w-md w-full p-4 space-y-3 bg-white">
+            <h3 class="text-xs font-bold text-gray-900">Create Relief Camp Record</h3>
+            <form onsubmit="handleCampSubmit(event)" class="space-y-2">
+                <div>
+                    <label class="form-label">Camp Name *</label>
+                    <input type="text" id="mcamp-name" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Address Location *</label>
+                    <input type="text" id="mcamp-address" required class="form-input">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="form-label">Capacity *</label>
+                        <input type="number" id="mcamp-capacity" min="1" required class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Occupied *</label>
+                        <input type="number" id="mcamp-occupied" min="0" required class="form-input">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Associated Disaster *</label>
+                    <select id="mcamp-disaster-select" required class="form-select"></select>
+                </div>
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" onclick="closeCampModal()" class="btn btn-secondary w-1/2">Cancel</button>
+                    <button type="submit" class="btn btn-primary w-1/2">Save Camp</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MEDICAL MODAL -->
+    <div id="modal-medical" class="hidden fixed inset-0 bg-gray-900/40 z-50 flex items-center justify-center p-4">
+        <div class="plain-box max-w-md w-full p-4 space-y-3 bg-white">
+            <h3 class="text-xs font-bold text-gray-900">Log Medical Case</h3>
+            <form onsubmit="handleMedicalSubmit(event)" class="space-y-2">
+                <div>
+                    <label class="form-label">Patient Name *</label>
+                    <input type="text" id="mmed-name" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Condition *</label>
+                    <input type="text" id="mmed-condition" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Referral Notes</label>
+                    <input type="text" id="mmed-referral" class="form-input">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="form-label">Relief Camp *</label>
+                        <select id="mmed-camp-select" required class="form-select"></select>
+                    </div>
+                    <div>
+                        <label class="form-label">Priority *</label>
+                        <select id="mmed-priority" class="form-select">
+                            <option value="Normal">Normal</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex space-x-2 pt-1">
+                    <button type="button" onclick="closeMedicalModal()" class="btn btn-secondary w-1/2">Cancel</button>
+                    <button type="submit" class="btn btn-primary w-1/2">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- APPLICATION JAVASCRIPT STATE ENGINE -->
+    <script>
+        const state = {
+            perspective: null,
+            adminSubRole: 'Super Admin',
+            notice: {
+                title: 'Active Disaster Advisory',
+                body: 'Monsoonal flooding active across Chennai region. Relief camps operational with food and medical facilities.'
+            },
+            disasters: [
+                { DisasterID: 1, Name: "Chennai Monsoonal Floods", DisasterType: "Flood", Location: "Chennai", StartDate: "2026-07-01", Severity: "Critical", Status: "Active" },
+                { DisasterID: 2, Name: "Delhi Earthquake Tremors", DisasterType: "Earthquake", Location: "Delhi", StartDate: "2026-08-15", Severity: "Moderate", Status: "Active" }
+            ],
+            camps: [
+                { CampID: 1, CampName: "Camp Alpha Shelter", Address: "Anna Nagar, Chennai", Capacity: 500, Occupied: 150, DisasterID: 1, Facilities: { food: true, water: true, medical: true, access: true } },
+                { CampID: 2, CampName: "Camp Beta School", Address: "T Nagar, Chennai", Capacity: 300, Occupied: 80, DisasterID: 1, Facilities: { food: true, water: true, medical: false, access: true } },
+                { CampID: 3, CampName: "Camp Gamma Hall", Address: "KK Nagar, Delhi", Capacity: 400, Occupied: 200, DisasterID: 2, Facilities: { food: true, water: true, medical: true, access: false } }
+            ],
+            reliefItems: [
+                { ItemID: 1, ItemName: "Water Packets", Category: "Essentials", TotalQuantity: 2000, QuantityDistributed: 1800 },
+                { ItemID: 2, ItemName: "Blanket Units", Category: "Essentials", TotalQuantity: 1000, QuantityDistributed: 300 },
+                { ItemID: 3, ItemName: "First Aid Kits", Category: "Medical", TotalQuantity: 500, QuantityDistributed: 460 }
+            ],
+            victims: [
+                { VictimID: "DRC-1001", Name: "Rahul Kumar", Phone: "9876543210", Age: 30, Gender: "M", CampID: 1, Members: 3, Status: "Active" },
+                { VictimID: "DRC-1002", Name: "Priya Sharma", Phone: "9876543211", Age: 28, Gender: "F", CampID: 1, Members: 2, Status: "Active" },
+                { VictimID: "DRC-1003", Name: "Aman Singh", Phone: "9876543212", Age: 45, Gender: "M", CampID: 2, Members: 5, Status: "Discharged" }
+            ],
+            requests: [
+                { RequestID: "REQ-201", Requester: "Rahul Kumar", Category: "Medical Supplies", CampID: 1, Priority: "High", Status: "Assigned", Description: "Insulin requirements" },
+                { RequestID: "REQ-202", Requester: "Priya Sharma", Category: "Food Ration", CampID: 1, Priority: "Normal", Status: "Pending", Description: "Infant nutrition" }
+            ],
+            sosQueue: [
+                { SOSID: "SOS-901", Name: "Suresh K", Location: "Velachery Junction, Chennai", Type: "Trapped / Evacuation", Time: "10 mins ago", Status: "Received" }
+            ],
+            medicalCases: [
+                { CaseID: "MED-501", Patient: "Priya Sharma", Condition: "High Fever", CampID: 1, Priority: "Normal", Status: "Under Observation", ReferralNotes: "Monitored at camp infirmary" },
+                { CaseID: "MED-502", Patient: "Rahul Kumar", Condition: "Fracture", CampID: 1, Priority: "Critical", Status: "Hospital Referred", ReferralNotes: "Referred to City General Hospital Wing B" }
+            ],
+            activities: [
+                { time: "10:12:04", text: "Emergency SOS received from Suresh K (Velachery Junction)" },
+                { time: "09:45:18", text: "New registration DRC-1002 assigned to Camp Alpha Shelter" }
+            ],
+            auditLogs: [
+                { time: new Date().toLocaleTimeString(), role: "System", action: "System Initialized with Relational Schema Data", target: "System" }
+            ]
+        };
+
+        function setPerspective(mode) {
+            if (mode === 'ADMIN') {
+                openAdminLogin();
+                return;
+            }
+            state.perspective = 'PUBLIC';
+            document.getElementById('screen-landing').classList.add('hidden');
+            document.getElementById('header-controls').classList.remove('hidden');
+            document.getElementById('current-perspective-label').innerText = 'Public Portal';
+            document.getElementById('admin-role-container').classList.add('hidden');
+            document.getElementById('screen-public').classList.remove('hidden');
+            document.getElementById('screen-admin').classList.add('hidden');
+            switchPublicTab('camps');
+            renderAll();
+        }
+
+        function openAdminLogin() {
+            document.getElementById('admin-login').classList.remove('hidden');
+            document.getElementById('admin-username').value = '';
+            document.getElementById('admin-password').value = '';
+            document.getElementById('admin-login-error').classList.add('hidden');
+            setTimeout(() => document.getElementById('admin-username').focus(), 50);
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('admin-login').classList.add('hidden');
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('admin-username').value.trim();
+            const password = document.getElementById('admin-password').value;
+            const error = document.getElementById('admin-login-error');
+            if (username !== 'admin123' || password !== 'admin@123') {
+                error.innerText = 'Invalid username or password.';
+                error.classList.remove('hidden');
+                return;
+            }
+            closeAdminLogin();
+            state.perspective = 'ADMIN';
+            document.getElementById('screen-landing').classList.add('hidden');
+            document.getElementById('header-controls').classList.remove('hidden');
+            document.getElementById('current-perspective-label').innerText = 'Operations Management';
+            document.getElementById('admin-role-container').classList.remove('hidden');
+            document.getElementById('screen-admin').classList.remove('hidden');
+            document.getElementById('screen-public').classList.add('hidden');
+            switchAdminTab('cmd');
+            logAudit('Admin', 'Successful administrator login', 'Access Control');
+            try { await loadDatabaseState(); } catch (err) { console.error(err); }
+            renderAll();
+        }
+
+        function switchAdminRole(val) {
+            state.adminSubRole = val;
+            document.getElementById('sidebar-role-label').innerText = val;
+            logAudit(val, `Switched administrative role scope to ${val}`, "Access Control");
+            renderAll();
+        }
+
+        function navigateHome() {
+            closeAdminLogin();
+            document.getElementById('screen-landing').classList.remove('hidden');
+            document.getElementById('screen-public').classList.add('hidden');
+            document.getElementById('screen-admin').classList.add('hidden');
+            document.getElementById('header-controls').classList.add('hidden');
+            state.perspective = null;
+        }
+
+        function switchPublicTab(tab) {
+            ['camps', 'register', 'request', 'status'].forEach(t => {
+                document.getElementById('ptab-' + t).classList.add('hidden');
+                const btn = document.getElementById('ptab-btn-' + t);
+                btn.classList.remove('border-blue-900', 'text-blue-900');
+                btn.classList.add('border-transparent', 'text-gray-600');
+            });
+
+            document.getElementById('ptab-' + tab).classList.remove('hidden');
+            const activeBtn = document.getElementById('ptab-btn-' + tab);
+            activeBtn.classList.remove('border-transparent', 'text-gray-600');
+            activeBtn.classList.add('border-blue-900', 'text-blue-900');
+        }
+
+        function switchAdminTab(tab) {
+            ['cmd', 'sos', 'notices', 'disasters', 'camps', 'victims', 'requests', 'resources', 'medical', 'analytics', 'reports', 'audit'].forEach(t => {
+                const el = document.getElementById('atab-' + t);
+                if (el) el.classList.add('hidden');
+                const btn = document.getElementById('atab-btn-' + t);
+                if (btn) {
+                    btn.classList.remove('bg-gray-100', 'font-bold', 'text-blue-900');
+                    btn.classList.add('text-gray-700');
+                }
+            });
+
+            const activeEl = document.getElementById('atab-' + tab);
+            if (activeEl) activeEl.classList.remove('hidden');
+            const activeBtn = document.getElementById('atab-btn-' + tab);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-gray-100', 'font-bold', 'text-blue-900');
+            }
+
+            if (tab === 'analytics') {
+                renderCharts();
+                executeSQLQuery();
+            }
+        }
+
+        function renderPublicCamps() {
+            const loc = document.getElementById('p-filter-location').value;
+            const disType = document.getElementById('p-filter-disaster').value;
+            const facility = document.getElementById('p-filter-facility').value;
+
+            const grid = document.getElementById('public-camp-grid');
+            grid.innerHTML = "";
+
+            const filtered = state.camps.filter(c => {
+                const dis = state.disasters.find(d => d.DisasterID === c.DisasterID);
+                if (loc && !c.Address.toLowerCase().includes(loc.toLowerCase())) return false;
+                if (disType && dis && dis.DisasterType !== disType) return false;
+                if (facility === 'medical' && !c.Facilities.medical) return false;
+                if (facility === 'food' && (!c.Facilities.food || !c.Facilities.water)) return false;
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-3 text-center py-4 text-xs text-gray-500">No relief camps match the selected criteria.</div>`;
+                return;
+            }
+
+            filtered.forEach(c => {
+                const avail = c.Capacity - c.Occupied;
+                const dis = state.disasters.find(d => d.DisasterID === c.DisasterID);
+
+                const card = document.createElement('div');
+                card.className = "plain-box p-3 space-y-1.5";
+                card.innerHTML = `
+                    <div class="flex justify-between items-start border-b pb-1">
+                        <div class="font-bold text-gray-900 text-xs">${c.CampName}</div>
+                        <span class="status-tag ${avail > 50 ? 'status-active' : 'status-pending'}">
+                            ${avail} Spaces
+                        </span>
+                    </div>
+                    <div class="text-xs text-gray-700">${c.Address}</div>
+                    <div class="text-xs text-gray-500">Event: ${dis ? dis.Name : 'General Relief'}</div>
+                    <div class="flex flex-wrap gap-1 pt-1">
+                        ${c.Facilities.food ? '<span class="text-xs bg-gray-100 px-1 border border-gray-300">Food</span>' : ''}
+                        ${c.Facilities.water ? '<span class="text-xs bg-gray-100 px-1 border border-gray-300">Water</span>' : ''}
+                        ${c.Facilities.medical ? '<span class="text-xs bg-gray-100 px-1 border border-gray-300">Medical</span>' : ''}
+                        ${c.Facilities.access ? '<span class="text-xs bg-gray-100 px-1 border border-gray-300">Accessible</span>' : ''}
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function resetPublicCampFilters() {
+            document.getElementById('p-filter-location').value = "";
+            document.getElementById('p-filter-disaster').value = "";
+            document.getElementById('p-filter-facility').value = "";
+            renderPublicCamps();
+        }
+
+        async function handlePublicRegister(e) {
+            e.preventDefault();
+            const id = 'DRC-' + Date.now().toString().slice(-8);
+            const name=document.getElementById('preg-name').value, phone=document.getElementById('preg-phone').value;
+            const age=parseInt(document.getElementById('preg-age').value)||null, gender=document.getElementById('preg-gender').value;
+            const campId=parseInt(document.getElementById('preg-camp-select').value)||null;
+            const adults=parseInt(document.getElementById('preg-adults').value)||1, children=parseInt(document.getElementById('preg-children').value)||0, elderly=parseInt(document.getElementById('preg-elderly').value)||0;
+            const totalMembers=adults+children+elderly;
+            try {
+                await apiRequest('beneficiaries','POST',{victim_id:id,name,phone,age,gender,camp_id:campId,family_members:totalMembers,status:'Active'});
+                const camp=state.camps.find(c=>c.CampID===campId);
+                if(camp){camp.Occupied=Math.min(camp.Capacity,camp.Occupied+totalMembers); await apiRequest('relief_camps','PUT',{occupied:camp.Occupied},campId);}
+                addActivity(`Beneficiary registered (${id}) under ${name}`); logAudit('Public Portal',`Registered Beneficiary (${id})`,'Beneficiaries');
+                alert(`Registration saved to MySQL. Generated ID: ${id}`); document.getElementById('form-public-register').reset();
+                await loadDatabaseState(); switchPublicTab('status'); renderAll();
+            } catch(err){alert('Could not register beneficiary: '+err.message);}
+        }
+
+        async function handlePublicRequest(e) {
+            e.preventDefault(); const id='REQ-'+Date.now().toString().slice(-8);
+            const name=document.getElementById('preq-name').value, cat=document.getElementById('preq-category').value;
+            const campId=parseInt(document.getElementById('preq-camp-select').value)||null, prio=document.getElementById('preq-priority').value, desc=document.getElementById('preq-desc').value;
+            try { await apiRequest('assistance_requests','POST',{request_id:id,requester:name,category:cat,camp_id:campId,priority:prio,status:'Pending',description:desc});
+                addActivity(`Assistance request (${id}) submitted by ${name}`); logAudit('Public Portal',`Submitted Assistance Request (${id})`,'Assistance Requests');
+                alert(`Request saved to MySQL. Application ID: ${id}`); document.getElementById('form-public-request').reset(); await loadDatabaseState(); switchPublicTab('status'); renderAll();
+            } catch(err){alert('Could not submit request: '+err.message);}
+        }
+
+        
+
+        function triggerSOSModal() { document.getElementById('modal-sos').classList.remove('hidden'); }
+        function closeSOSModal() { document.getElementById('modal-sos').classList.add('hidden'); }
+        async function handleSOSSubmit(e) {
+            e.preventDefault(); const id='SOS-'+Date.now().toString().slice(-8);
+            const name=document.getElementById('msos-name').value, loc=document.getElementById('msos-location').value, type=document.getElementById('msos-type').value;
+            try { await apiRequest('sos_requests','POST',{sos_id:id,name,location:loc,request_type:type,request_time:new Date().toLocaleString(),status:'Received'});
+                addActivity(`Emergency SOS (${id}) logged by ${name} at ${loc}`); logAudit('Public SOS',`Logged Emergency SOS (${id})`,'Emergency Queue');
+                closeSOSModal(); alert(`Emergency SOS saved to MySQL. ID: ${id}`); await loadDatabaseState(); renderAll();
+            } catch(err){alert('Could not save SOS: '+err.message);}
+        }
+
+        
+
+        async function updateSOSState(id,newStatus){try{await apiRequest('sos_requests','PUT',{status:newStatus},id);addActivity(`Emergency SOS ${id} status updated to ${newStatus}`);logAudit(state.adminSubRole,`Updated SOS ${id} -> ${newStatus}`,'Emergency Queue');await loadDatabaseState();renderAll();alert('SOS status saved to MySQL successfully.');}catch(err){console.error(err);alert('Could not update SOS in MySQL: '+err.message);}}
+        async function updateRequestState(id,newStatus){try{await apiRequest('assistance_requests','PUT',{status:newStatus},id);addActivity(`Assistance Request ${id} status updated to ${newStatus}`);logAudit(state.adminSubRole,`Updated Request ${id} -> ${newStatus}`,'Assistance Requests');await loadDatabaseState();renderAll();alert('Assistance request status saved to MySQL successfully.');}catch(err){console.error(err);alert('Could not update assistance request in MySQL: '+err.message);}}
+        async function updateMedicalState(id,newStatus){try{await apiRequest('medical_cases','PUT',{status:newStatus},id);addActivity(`Medical Case ${id} status updated to ${newStatus}`);logAudit(state.adminSubRole,`Updated Medical Case ${id} -> ${newStatus}`,'Medical Cases');await loadDatabaseState();renderAll();alert('Medical case status saved to MySQL successfully.');}catch(err){console.error(err);alert('Could not update medical case in MySQL: '+err.message);}}
+        async function updateMedicalNotes(id,notes){try{await apiRequest('medical_cases','PUT',{referral_notes:notes},id);logAudit(state.adminSubRole,`Updated Referral Notes for ${id}`,'Medical Cases');alert('Medical referral notes saved to MySQL successfully.');}catch(err){console.error(err);alert('Could not save medical notes to MySQL: '+err.message);}}
+        async function updateStockDistribution(itemId,amount){const item=state.reliefItems.find(i=>String(i.ItemID)===String(itemId));if(!item)return;const next=Math.min(item.TotalQuantity,Math.max(0,item.QuantityDistributed+amount));try{await apiRequest('relief_resources','PUT',{quantity_distributed:next},itemId);addActivity(`Stock issued for ${item.ItemName}`);logAudit(state.adminSubRole,`Updated stock distribution for ${item.ItemName}`,'Resources');await loadDatabaseState();renderAll();alert('Resource stock quantity saved to MySQL successfully.');}catch(err){console.error(err);alert('Could not update resource stock in MySQL: '+err.message);}}
+
+        
+
+        async function handlePublishNotice(e){e.preventDefault();const title=document.getElementById('anotice-title').value,body=document.getElementById('anotice-body').value;try{await apiRequest('public_notices','POST',{title,body,status:'Active'});logAudit(state.adminSubRole,'Published public advisory notice','Public Notices');await loadDatabaseState();renderAll();alert('Public notice saved to MySQL successfully.');document.getElementById('anotice-title').value='';document.getElementById('anotice-body').value='';}catch(err){console.error(err);alert('Could not publish notice to MySQL: '+err.message);}}
+
+        
+
+        function openDisasterModal() { document.getElementById('modal-disaster').classList.remove('hidden'); }
+        function closeDisasterModal() { document.getElementById('modal-disaster').classList.add('hidden'); }
+        async function handleDisasterSubmit(e){e.preventDefault();const name=document.getElementById('mdis-name').value,type=document.getElementById('mdis-type').value,loc=document.getElementById('mdis-location').value,date=document.getElementById('mdis-date').value;try{await apiRequest('disasters','POST',{disaster_name:name,disaster_type:type,location:loc,start_date:date,status:'Active'});closeDisasterModal();logAudit(state.adminSubRole,`Registered Disaster (${name})`,'Disasters');await loadDatabaseState();renderAll();alert('Disaster saved to MySQL.');}catch(err){alert('Could not save disaster: '+err.message);}}
+
+        
+
+        function openCampModal() {
+            const select = document.getElementById('mcamp-disaster-select');
+            select.innerHTML = state.disasters.map(d => `<option value="${d.DisasterID}">${d.Name}</option>`).join('');
+            document.getElementById('modal-camp').classList.remove('hidden');
+        }
+        function closeCampModal() { document.getElementById('modal-camp').classList.add('hidden'); }
+        async function handleCampSubmit(e){e.preventDefault();const name=document.getElementById('mcamp-name').value,addr=document.getElementById('mcamp-address').value,cap=parseInt(document.getElementById('mcamp-capacity').value),occ=parseInt(document.getElementById('mcamp-occupied').value)||0,disId=parseInt(document.getElementById('mcamp-disaster-select').value)||null;try{await apiRequest('relief_camps','POST',{camp_name:name,location:addr,capacity:cap,occupied:occ,status:'Active',disaster_id:disId});closeCampModal();logAudit(state.adminSubRole,`Created Relief Camp (${name})`,'Relief Camps');await loadDatabaseState();renderAll();alert('Relief camp saved to MySQL.');}catch(err){alert('Could not save camp: '+err.message);}}
+
+        
+
+        function openMedicalModal() {
+            const select = document.getElementById('mmed-camp-select');
+            select.innerHTML = state.camps.map(c => `<option value="${c.CampID}">${c.CampName}</option>`).join('');
+            document.getElementById('modal-medical').classList.remove('hidden');
+        }
+        function closeMedicalModal() { document.getElementById('modal-medical').classList.add('hidden'); }
+        async function handleMedicalSubmit(e){e.preventDefault();const name=document.getElementById('mmed-name').value,cond=document.getElementById('mmed-condition').value,ref=document.getElementById('mmed-referral').value||'Monitored at camp infirmary',campId=parseInt(document.getElementById('mmed-camp-select').value)||null,prio=document.getElementById('mmed-priority').value,id='MED-'+Date.now().toString().slice(-8);try{await apiRequest('medical_cases','POST',{case_id:id,patient:name,medical_condition:cond,camp_id:campId,priority:prio,status:'Under Observation',referral_notes:ref});closeMedicalModal();logAudit(state.adminSubRole,`Logged Medical Case (${id})`,'Medical Cases');await loadDatabaseState();renderAll();alert('Medical case saved to MySQL.');}catch(err){alert('Could not save medical case: '+err.message);}}
+
+        
+
+        function updatePublicFilterOptions() {
+            const citySelect = document.getElementById('p-filter-location');
+            const typeSelect = document.getElementById('p-filter-disaster');
+            const selectedCity = citySelect.value, selectedType = typeSelect.value;
+            const cities = [...new Set(state.camps.map(c => c.Address).map(v => String(v).split(',').pop().trim()).filter(Boolean))].sort();
+            const types = [...new Set(state.disasters.map(d => d.DisasterType).filter(Boolean))].sort();
+            citySelect.innerHTML = '<option value="">All Locations</option>' + cities.map(v => `<option value="${v}">${v}</option>`).join('');
+            typeSelect.innerHTML = '<option value="">All Disasters</option>' + types.map(v => `<option value="${v}">${v}</option>`).join('');
+            if (cities.includes(selectedCity)) citySelect.value = selectedCity;
+            if (types.includes(selectedType)) typeSelect.value = selectedType;
+        }
+
+        function renderAll() {
+            document.getElementById('notice-title').innerText = state.notice.title;
+            document.getElementById('notice-body').innerText = state.notice.body;
+
+            updatePublicFilterOptions();
+            const campOptions = state.camps.map(c => `<option value="${c.CampID}">${c.CampName} (${c.Address})</option>`).join('');
+            document.getElementById('preg-camp-select').innerHTML = campOptions;
+            document.getElementById('preq-camp-select').innerHTML = campOptions;
+
+            const totalBeneficiaries = state.victims.reduce((acc, v) => acc + v.Members, 0);
+            const totalCapacity = state.camps.reduce((acc, c) => acc + c.Capacity, 0);
+            const totalOccupied = state.camps.reduce((acc, c) => acc + c.Occupied, 0);
+            const totalAvailable = Math.max(0, totalCapacity - totalOccupied);
+            const pendingReqs = state.requests.filter(r => r.Status === 'Pending').length;
+            const activeSOS = state.sosQueue.filter(s => s.Status !== 'Resolved').length;
+
+            document.getElementById('m-stat-disasters').innerText = state.disasters.length;
+            document.getElementById('m-stat-camps').innerText = state.camps.length;
+            document.getElementById('m-stat-victims').innerText = totalBeneficiaries;
+            document.getElementById('m-stat-requests').innerText = pendingReqs;
+            document.getElementById('m-stat-sos').innerText = activeSOS;
+            document.getElementById('m-stat-capacity').innerText = totalAvailable;
+
+            renderPublicCamps();
+            renderPublicStatus();
+            renderActivityFeed();
+            renderInventoryAlerts();
+            renderAdminSOS();
+            renderAdminDisasters();
+            renderAdminCamps();
+            renderAdminVictims();
+            renderAdminRequests();
+            renderAdminResources();
+            renderAdminMedical();
+            renderAudit();
+        }
+
+        function renderPublicStatus() {
+            const regTbody = document.getElementById('public-registrations-tbody');
+            regTbody.innerHTML = state.victims.map(v => {
+                const c = state.camps.find(x => x.CampID === v.CampID);
+                return `
+                    <tr>
+                        <td class="font-mono-code">${v.VictimID}</td>
+                        <td>${v.Name}</td>
+                        <td>${v.Phone}</td>
+                        <td>${v.Members}</td>
+                        <td>${c ? c.CampName : 'Unassigned'}</td>
+                        <td><span class="status-tag status-active">${v.Status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            const reqTbody = document.getElementById('public-requests-tbody');
+            reqTbody.innerHTML = state.requests.map(r => {
+                const c = state.camps.find(x => x.CampID === r.CampID);
+                return `
+                    <tr>
+                        <td class="font-mono-code">${r.RequestID}</td>
+                        <td>${r.Category}</td>
+                        <td>${c ? c.CampName : 'N/A'}</td>
+                        <td class="font-bold text-amber-800">${r.Priority}</td>
+                        <td><span class="status-tag status-pending">${r.Status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderActivityFeed() {
+            const container = document.getElementById('admin-activity-feed');
+            container.innerHTML = state.activities.map(a => `
+                <div class="border-b border-gray-200 pb-0.5 flex space-x-2">
+                    <span class="text-gray-500 font-mono-code text-xs">${a.time}</span>
+                    <span class="text-gray-800">${a.text}</span>
+                </div>
+            `).join('');
+        }
+
+        function renderInventoryAlerts() {
+            const container = document.getElementById('admin-inventory-alerts');
+            const alerts = [];
+            state.reliefItems.forEach(i => {
+                const rem = i.TotalQuantity - i.QuantityDistributed;
+                if (rem < 300) {
+                    alerts.push(`<div class="p-1.5 bg-amber-50 border-l-2 border-amber-600 text-amber-900">Stock Alert: <strong>${i.ItemName}</strong> has ${rem} units remaining.</div>`);
+                }
+            });
+            container.innerHTML = alerts.length ? alerts.join('') : `<div class="text-gray-500">All stocks within normal range.</div>`;
+        }
+
+        function renderAdminSOS() {
+            const tbody = document.getElementById('admin-sos-tbody');
+            tbody.innerHTML = state.sosQueue.map(s => `
+                <tr>
+                    <td class="font-mono-code text-red-700">${s.SOSID}</td>
+                    <td>${s.Name}</td>
+                    <td>${s.Location}</td>
+                    <td>${s.Type}</td>
+                    <td class="font-mono-code text-gray-500">${s.Time}</td>
+                    <td class="font-bold">${s.Status}</td>
+                    <td>
+                        <select onchange="updateSOSState('${s.SOSID}', this.value)" class="form-select text-xs py-0 px-1">
+                            <option value="Received" ${s.Status === 'Received' ? 'selected' : ''}>Received</option>
+                            <option value="Acknowledged" ${s.Status === 'Acknowledged' ? 'selected' : ''}>Acknowledged</option>
+                            <option value="Team Assigned" ${s.Status === 'Team Assigned' ? 'selected' : ''}>Team Assigned</option>
+                            <option value="Dispatched" ${s.Status === 'Dispatched' ? 'selected' : ''}>Dispatched</option>
+                            <option value="Resolved" ${s.Status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+                        </select>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdminDisasters() {
+            const tbody = document.getElementById('admin-disasters-tbody');
+            tbody.innerHTML = state.disasters.map(d => `
+                <tr>
+                    <td class="font-mono-code">${d.DisasterID}</td>
+                    <td>${d.Name}</td>
+                    <td>${d.DisasterType}</td>
+                    <td>${d.Location}</td>
+                    <td class="font-mono-code">${d.StartDate}</td>
+                    <td><span class="status-tag status-critical">${d.Severity}</span></td>
+                    <td><span class="status-tag status-active">${d.Status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdminCamps() {
+            const tbody = document.getElementById('admin-camps-tbody');
+            tbody.innerHTML = state.camps.map(c => {
+                const avail = c.Capacity - c.Occupied;
+                return `
+                    <tr>
+                        <td class="font-mono-code">${c.CampID}</td>
+                        <td>${c.CampName}</td>
+                        <td>${c.Address}</td>
+                        <td>${c.Capacity}</td>
+                        <td>${c.Occupied}</td>
+                        <td class="font-bold text-emerald-800">${avail}</td>
+                        <td><span class="status-tag status-active">Active</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderAdminVictims() {
+            const q = (document.getElementById('search-victims-input')?.value || '').toLowerCase();
+            const st = document.getElementById('filter-victim-status')?.value || '';
+
+            const filtered = state.victims.filter(v => {
+                if (q && !v.Name.toLowerCase().includes(q) && !v.VictimID.toLowerCase().includes(q)) return false;
+                if (st && v.Status !== st) return false;
+                return true;
+            });
+
+            const tbody = document.getElementById('admin-victims-tbody');
+            tbody.innerHTML = filtered.map(v => {
+                const c = state.camps.find(x => x.CampID === v.CampID);
+                return `
+                    <tr>
+                        <td class="font-mono-code">${v.VictimID}</td>
+                        <td>${v.Name}</td>
+                        <td>${v.Age} / ${v.Gender}</td>
+                        <td>${v.Members}</td>
+                        <td>${c ? c.CampName : 'Unassigned'}</td>
+                        <td><span class="status-tag status-info">${v.Status}</span></td>
+                        <td>
+                            <button onclick="dischargeBeneficiary('${v.VictimID}')" class="btn btn-secondary text-xs py-0 px-1">Discharge</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function dischargeBeneficiary(id) {
+            const v = state.victims.find(x => x.VictimID === id);
+            if (v) {
+                v.Status = "Discharged";
+                addActivity(`Beneficiary ${id} discharged from camp`);
+                logAudit(state.adminSubRole, `Discharged Beneficiary (${id})`, "Beneficiaries");
+                renderAll();
+            }
+        }
+
+        function renderAdminRequests() {
+            const tbody = document.getElementById('admin-requests-tbody');
+            tbody.innerHTML = state.requests.map(r => {
+                const c = state.camps.find(x => x.CampID === r.CampID);
+                return `
+                    <tr>
+                        <td class="font-mono-code">${r.RequestID}</td>
+                        <td>${r.Requester}</td>
+                        <td>${r.Category}</td>
+                        <td>${c ? c.CampName : 'N/A'}</td>
+                        <td class="font-bold text-amber-800">${r.Priority}</td>
+                        <td>${r.Status}</td>
+                        <td>
+                            <select onchange="updateRequestState('${r.RequestID}', this.value)" class="form-select text-xs py-0 px-1">
+                                <option value="Pending" ${r.Status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                <option value="Assigned" ${r.Status === 'Assigned' ? 'selected' : ''}>Assigned</option>
+                                <option value="Approved" ${r.Status === 'Approved' ? 'selected' : ''}>Approved</option>
+                                <option value="Completed" ${r.Status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                <option value="Rejected" ${r.Status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderAdminResources() {
+            const tbody = document.getElementById('admin-resources-tbody');
+            tbody.innerHTML = state.reliefItems.map(i => {
+                const rem = i.TotalQuantity - i.QuantityDistributed;
+                return `
+                    <tr>
+                        <td class="font-mono-code">${i.ItemID}</td>
+                        <td>${i.ItemName}</td>
+                        <td>${i.Category}</td>
+                        <td>${i.TotalQuantity}</td>
+                        <td>${i.QuantityDistributed}</td>
+                        <td class="font-bold ${rem < 300 ? 'text-red-700' : 'text-emerald-800'}">${rem}</td>
+                        <td>
+                            <button onclick="updateStockDistribution(${i.ItemID}, 50)" class="btn btn-secondary text-xs py-0 px-1">+50 Issued</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderAdminMedical() {
+            const tbody = document.getElementById('admin-medical-tbody');
+            const canEdit = (state.adminSubRole === 'Medical Officer' || state.adminSubRole === 'Super Admin');
+
+            tbody.innerHTML = state.medicalCases.map(m => {
+                const c = state.camps.find(x => x.CampID === m.CampID);
+                return `
+                    <tr>
+                        <td class="font-mono-code">${m.CaseID}</td>
+                        <td>${m.Patient}</td>
+                        <td>${m.Condition}</td>
+                        <td>${c ? c.CampName : 'N/A'}</td>
+                        <td>
+                            ${canEdit ? `
+                                <input type="text" value="${m.ReferralNotes || ''}" onchange="updateMedicalNotes('${m.CaseID}', this.value)" class="form-input text-xs py-0 px-1">
+                            ` : `<span>${m.ReferralNotes || 'None'}</span>`}
+                        </td>
+                        <td class="font-bold text-red-700">${m.Priority}</td>
+                        <td><span class="status-tag status-pending">${m.Status}</span></td>
+                        <td>
+                            ${canEdit ? `
+                                <select onchange="updateMedicalState('${m.CaseID}', this.value)" class="form-select text-xs py-0 px-1">
+                                    <option value="Under Observation" ${m.Status === 'Under Observation' ? 'selected' : ''}>Under Observation</option>
+                                    <option value="Treatment Active" ${m.Status === 'Treatment Active' ? 'selected' : ''}>Treatment Active</option>
+                                    <option value="Hospital Referred" ${m.Status === 'Hospital Referred' ? 'selected' : ''}>Hospital Referred</option>
+                                    <option value="Discharged" ${m.Status === 'Discharged' ? 'selected' : ''}>Discharged</option>
+                                </select>
+                            ` : `<span class="text-gray-400 text-xs">Read-Only</span>`}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderAudit() {
+            const tbody = document.getElementById('admin-audit-tbody');
+            tbody.innerHTML = state.auditLogs.map(a => `
+                <tr>
+                    <td class="text-gray-500 font-mono-code">${a.time}</td>
+                    <td class="font-bold text-gray-800">${a.role}</td>
+                    <td>${a.action}</td>
+                    <td class="text-gray-600">${a.target}</td>
+                </tr>
+            `).join('');
+        }
+
+        function executeSQLQuery() {
+            const city = document.getElementById('sql-city').value;
+            const disType = document.getElementById('sql-disaster').value;
+            const year = document.getElementById('sql-year').value;
+
+            let sql = `SELECT * FROM Victim v JOIN Camp c ON v.CampID = c.CampID JOIN Disaster d ON c.DisasterID = d.DisasterID WHERE 1=1`;
+            if (city) sql += ` AND d.Location = '${city}'`;
+            if (disType) sql += ` AND d.DisasterType = '${disType}'`;
+            if (year) sql += ` AND YEAR(d.StartDate) = ${year}`;
+
+            document.getElementById('sql-query-string').innerText = sql + `;`;
+
+            const results = state.victims.filter(v => {
+                const c = state.camps.find(x => x.CampID === v.CampID);
+                const d = c ? state.disasters.find(x => x.DisasterID === c.DisasterID) : null;
+
+                if (city && d && d.Location !== city) return false;
+                if (disType && d && d.DisasterType !== disType) return false;
+                if (year && d && !d.StartDate.includes(year)) return false;
+                return true;
+            });
+
+            const tbody = document.getElementById('sql-results-tbody');
+            tbody.innerHTML = results.map(v => {
+                const c = state.camps.find(x => x.CampID === v.CampID);
+                const d = c ? state.disasters.find(x => x.DisasterID === c.DisasterID) : null;
+                return `
+                    <tr>
+                        <td class="font-mono-code">${v.VictimID}</td>
+                        <td>${v.Name}</td>
+                        <td>${c ? c.CampName : 'N/A'}</td>
+                        <td>${d ? d.Name : 'N/A'}</td>
+                        <td>${d ? d.Location : 'N/A'}</td>
+                        <td class="font-mono-code">${d ? d.StartDate : 'N/A'}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderCharts() {
+            const canvas1 = document.getElementById('chart-camps-canvas');
+            if (canvas1 && canvas1.getContext) {
+                const ctx = canvas1.getContext('2d');
+                ctx.clearRect(0, 0, canvas1.width, canvas1.height);
+
+                let x = 20;
+                state.camps.forEach(c => {
+                    const h = (c.Occupied / c.Capacity) * 90;
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.fillRect(x, 20, 30, 90);
+
+                    ctx.fillStyle = '#0f2c59';
+                    ctx.fillRect(x, 110 - h, 30, h);
+
+                    ctx.fillStyle = '#333333';
+                    ctx.font = '11px Arial';
+                    ctx.fillText(c.CampName.substring(0, 7), x, 125);
+                    x += 60;
+                });
+            }
+
+            const canvas2 = document.getElementById('chart-requests-canvas');
+            if (canvas2 && canvas2.getContext) {
+                const ctx = canvas2.getContext('2d');
+                ctx.clearRect(0, 0, canvas2.width, canvas2.height);
+
+                const counts = {};
+                state.requests.forEach(r => counts[r.Category] = (counts[r.Category] || 0) + 1);
+
+                let y = 25;
+                Object.keys(counts).forEach(cat => {
+                    const val = counts[cat];
+                    ctx.fillStyle = '#0f2c59';
+                    ctx.fillRect(110, y - 9, val * 40, 12);
+
+                    ctx.fillStyle = '#333333';
+                    ctx.font = '11px Arial';
+                    ctx.fillText(cat, 10, y);
+                    ctx.fillText(val.toString(), 115 + val * 40, y);
+                    y += 24;
+                });
+            }
+        }
+
+        function exportReport(title) {
+            logAudit(state.adminSubRole, `Exported ${title} Report`, "Reporting");
+            alert(`Report "${title}" exported.`);
+        }
+
+
+        // Use the Java server's own origin whenever this page is served by Backend.java.
+        // This avoids CORS problems with PUT requests such as SOS status updates.
+        const API_BASE = (location.protocol === 'http:' &&
+                          (location.hostname === '127.0.0.1' || location.hostname === 'localhost') &&
+                          location.port === '8080')
+            ? '/api'
+            : 'http://127.0.0.1:8080/api';
+
+        async function apiRequest(table, method='GET', data=null, id=null) {
+            const url = API_BASE + '/' + table + (id !== null ? '/' + encodeURIComponent(id) : '');
+            const options = { method, cache: 'no-store', headers: {} };
+            if (data && method !== 'GET') {
+                options.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+                options.body = new URLSearchParams(Object.entries(data).filter(([k,v]) => v !== undefined && v !== null).map(([k,v]) => [k, String(v)])).toString();
+            }
+            let response;
+            try {
+                response = await fetch(url, options);
+            } catch (networkError) {
+                console.error('API request failed:', {url, method, networkError});
+                throw new Error('Could not reach the Java backend. Open the website at http://127.0.0.1:8080/ and keep Backend.java running.');
+            }
+            const text = await response.text();
+            let result = {};
+            try { result = text ? JSON.parse(text) : {}; } catch (_) { result = { error: text || 'Empty server response' }; }
+            if (!response.ok) throw new Error(result.error || ('HTTP ' + response.status));
+            return result;
+        }
+        function safeDbAction(promise) { promise.catch(err => { console.error(err); alert('Database error: ' + err.message); }); }
+        function addActivity(text) {
+            state.activities.unshift({ time: new Date().toLocaleTimeString(), text });
+            renderActivityFeed();
+            safeDbAction(apiRequest('activities','POST',{activity_time:new Date().toLocaleString(),activity_text:text}));
+        }
+        function logAudit(role, action, target) {
+            state.auditLogs.unshift({ time: new Date().toLocaleTimeString(), role, action, target });
+            renderAudit();
+            safeDbAction(apiRequest('audit_logs','POST',{role,action,target}));
+        }
+        async function loadDatabaseState() {
+            const names = ['disasters','relief_camps','relief_resources','beneficiaries','assistance_requests','sos_requests','medical_cases','public_notices','activities','audit_logs'];
+            const results = await Promise.all(names.map(name => apiRequest(name).catch(err => ({__error: err.message}))));
+            const [d,c,r,b,a,s,m,n,act,aud] = results;
+            const failed = [];
+            results.forEach((x,i) => { if (x && x.__error) failed.push(names[i] + ': ' + x.__error); });
+            if (failed.length) console.warn('Some database tables could not be loaded:', failed);
+            if (!d.__error) state.disasters = d.map(x=>({DisasterID:Number(x.disaster_id),Name:x.disaster_name,DisasterType:x.disaster_type,Location:x.location,StartDate:x.start_date,Severity:x.severity || 'Moderate',Status:x.status || 'Active'}));
+            if (!c.__error) state.camps = c.map(x=>({CampID:Number(x.camp_id),CampName:x.camp_name,Address:x.location,Capacity:Number(x.capacity),Occupied:Number(x.occupied||0),DisasterID:x.disaster_id==null?null:Number(x.disaster_id),Facilities:{food:true,water:true,medical:true,access:true}}));
+            if (!r.__error) state.reliefItems = r.map(x=>({ItemID:Number(x.resource_id),ItemName:x.item_name,Category:x.category,TotalQuantity:Number(x.total_quantity),QuantityDistributed:Number(x.quantity_distributed)}));
+            if (!b.__error) state.victims = b.map(x=>({VictimID:x.victim_id,Name:x.name,Phone:x.phone,Age:Number(x.age),Gender:x.gender,CampID:Number(x.camp_id),Members:Number(x.family_members||1),Status:x.status}));
+            if (!a.__error) state.requests = a.map(x=>({RequestID:x.request_id,Requester:x.requester,Category:x.category,CampID:Number(x.camp_id),Priority:x.priority,Status:x.status,Description:x.description}));
+            if (!s.__error) state.sosQueue = s.map(x=>({SOSID:x.sos_id,Name:x.name,Location:x.location,Type:x.request_type,Time:x.request_time,Status:x.status || 'Received'}));
+            if (!m.__error) state.medicalCases = m.map(x=>({CaseID:x.case_id,Patient:x.patient,Condition:x.medical_condition,CampID:Number(x.camp_id),Priority:x.priority,Status:x.status,ReferralNotes:x.referral_notes}));
+            if (!n.__error) state.notice = n.length ? {title:n[n.length-1].title,body:n[n.length-1].body} : {title:'No active notice',body:'No public advisory has been published.'};
+            if (!act.__error) state.activities = act.map(x=>({time:x.activity_time,text:x.activity_text})).reverse();
+            if (!aud.__error) state.auditLogs = aud.map(x=>({time:x.log_time,role:x.role,action:x.action,target:x.target})).reverse();
+            return failed;
+        }
+
+        window.onload = async function() {
+            try {
+                const failed = await loadDatabaseState();
+                renderAll();
+                if (failed.length) console.warn('Database load warnings:', failed.join(' | '));
+            } catch (err) {
+                console.error(err);
+                renderAll();
+            }
+        };
+    </script>
+</body>
+</html>
